@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import globalStyles from "../globalStyles";
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Imagen de fondo utilizando ImageBackground */}
@@ -26,7 +26,11 @@ const LoginScreen = () => {
             source={require("../../assets/bimboLogo.png")}
             style={styles.logo}
           />
-          <TouchableOpacity style={styles.button} activeOpacity={0.6}>
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.6}
+            onPress={() => navigation.navigate("Welcome")}
+          >
             <Text style={[globalStyles.textBold, styles.buttonText]}>
               Iniciar Sesión
             </Text>
