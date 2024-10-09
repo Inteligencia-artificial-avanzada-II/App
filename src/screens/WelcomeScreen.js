@@ -28,6 +28,7 @@ const WelcomeScreen = ({ navigation }) => {
         placeholder="Ingresa tu correo"
         placeholderTextColor="#aaa"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Ingresa tu contraseña"
@@ -37,7 +38,10 @@ const WelcomeScreen = ({ navigation }) => {
 
       <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("QRScan")}
+      >
         <Text style={[globalStyles.textBold, styles.buttonText]}>
           Iniciar Sesión
         </Text>
