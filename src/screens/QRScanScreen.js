@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; 
-import { BarCodeScanner } from "expo-barcode-scanner";  // Importa el escáner de códigos QR
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { BarCodeScanner } from "expo-barcode-scanner"; // Importa el escáner de códigos QR
+import { useIsFocused } from "@react-navigation/native"; // Para detectar si la pantalla está enfocada
 
 const QRScanScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);  // Controla si se debe mostrar el escáner
+  const [showScanner, setShowScanner] = useState(false); // Controla si se debe mostrar el escáner
+
+  const isFocused = useIsFocused(); // Hook para detectar si la pantalla está enfocada
 
   // Solicitar permisos para usar la cámara
   useEffect(() => {
@@ -18,11 +28,19 @@ const QRScanScreen = ({ navigation }) => {
     getBarCodeScannerPermissions();
   }, []);
 
+  // Restablecer el escáner si la pantalla vuelve a estar enfocada
+  useEffect(() => {
+    if (isFocused) {
+      setScanned(false); // Permitir volver a escanear cuando regresa a la pantalla
+      setShowScanner(false); // Reiniciar el escáner y volver a la pantalla principal
+    }
+  }, [isFocused]);
+
   // Función que se llama cuando el código QR es escaneado
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     Alert.alert("Código escaneado", `El código escaneado es: ${data}`);
-    
+
     // Navegar a OrderScreen después del escaneo
     navigation.navigate("Order");
   };
@@ -51,25 +69,28 @@ const QRScanScreen = ({ navigation }) => {
       {/* Contenedor del escaneo de QR */}
       {!showScanner ? (
         <View style={styles.qrContainer}>
-          <Image source={require("../../assets/Qr.png")} style={styles.qrImage} />
+          <Image
+            source={require("../../assets/Qr.png")}
+            style={styles.qrImage}
+          />
         </View>
       ) : (
         <View style={styles.qrContainer}>
           <BarCodeScanner
             onBarCodeScanned={scanned ? undefined : handleBarCodeScanned} // Escanear solo si no ha sido escaneado
-            style={StyleSheet.absoluteFillObject}  // Hacer que el escáner ocupe toda la pantalla
+            style={StyleSheet.absoluteFillObject} // Hacer que el escáner ocupe toda la pantalla
           />
         </View>
       )}
 
       {/* Sección azul inferior */}
-      <View style={styles.bottomSection}>
-        {/* Botón para escanear */}
-        {!showScanner && (
+      {!showScanner && (
+        <View style={styles.bottomSection}>
+          {/* Botón para escanear */}
           <TouchableOpacity
             style={styles.button}
             activeOpacity={0.7}
-            onPress={() => setShowScanner(true)}  // Mostrar el escáner cuando se presione
+            onPress={() => setShowScanner(true)} // Mostrar el escáner cuando se presione
           >
             <Text style={styles.buttonText}>LEER QR</Text>
             <Ionicons
@@ -79,25 +100,8 @@ const QRScanScreen = ({ navigation }) => {
               style={styles.icon}
             />
           </TouchableOpacity>
-        )}
-
-        {/* Botón para escanear de nuevo */}
-        {scanned && showScanner && (
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.7}
-            onPress={() => setScanned(false)} // Permitir reescanear al presionar el botón
-          >
-            <Text style={styles.buttonText}>Escanear de nuevo</Text>
-            <Ionicons
-              name="arrow-forward-outline"
-              size={20}
-              color="#000"
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -110,7 +114,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   containerBack: {
-    position: "absolute", 
+    position: "absolute",
     top: 50,
     left: 20,
     width: 50,
@@ -129,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 50,
-    flex: 1,  // Asegurar que el escáner ocupe todo el espacio disponible
+    flex: 1, // Asegurar que el escáner ocupe todo el espacio disponible
     width: "100%",
   },
   qrImage: {

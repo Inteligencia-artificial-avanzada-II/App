@@ -34,12 +34,15 @@ const OrderScreen = ({ navigation }) => {
               color="#fff"
               style={styles.icon}
             />
-            <Text style={styles.itemText}>Productos</Text>
           </View>
+          <Text style={styles.itemText}>Productos</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Parked")}
+      >
         <Text style={styles.buttonText}>Acomodar</Text>
       </TouchableOpacity>
     </View>
@@ -91,6 +94,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   button: {
+    position: "absolute",
+    bottom: 100,
     backgroundColor: "#0033cc",
     padding: 15,
     borderRadius: 10,
