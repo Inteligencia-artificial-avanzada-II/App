@@ -16,9 +16,9 @@ const ParkedScreen = ({ navigation }) => {
       {/* Botón para regresar al login */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Login")} // Cambia "Login" por la pantalla a la que quieres navegar
+        onPress={() => navigation.navigate("QRScan")} // Cambia "Login" por la pantalla a la que quieres navegar
       >
-        <Text style={styles.buttonText}>Back to Login</Text>
+        <Text style={styles.buttonText}>Inicio</Text>
       </TouchableOpacity>
     </View>
   );
