@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ImageBackground,
 } from "react-native";
 import globalStyles from "../globalStyles";
+
 
 const LoginScreen = ({ navigation }) => {
   return (

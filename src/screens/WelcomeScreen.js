@@ -1,14 +1,46 @@
 // src/screens/WelcomeScreen.js
-import React from "react";
+import { React, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import globalStyles from "../globalStyles";
+
+import axios from "axios";
+
 const WelcomeScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        "http://10.48.73.45:8080/usuario/loginCaseta",
+        {
+          userName: email,
+          contraseña: password,
+        }
+      );
+
+      if (response.data.data.isValid) {
+        Alert.alert("Inicio de sesión exitoso", "Bienvenido");
+        navigation.navigate("QRScan");
+      } else {
+        Alert.alert("Error", response.data.message);
+      }
+    } catch (error) {
+      console.log("Error de la solicitud: ", error);
+      Alert.alert(
+        "Error",
+        "Las credenciales ingresadas son incorrectas o hubo un problema con el servidor."
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.containerBack}>
@@ -27,6 +59,8 @@ const WelcomeScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="Ingresa tu correo"
         placeholderTextColor="#aaa"
+        value={email}
+        onChangeText={setEmail}
       />
 
       <TextInput
@@ -34,14 +68,13 @@ const WelcomeScreen = ({ navigation }) => {
         placeholder="Ingresa tu contraseña"
         placeholderTextColor="#aaa"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
 
       <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("QRScan")}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={[globalStyles.textBold, styles.buttonText]}>
           Iniciar Sesión
         </Text>
