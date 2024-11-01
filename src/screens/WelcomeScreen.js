@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import globalStyles from "../globalStyles";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const WelcomeScreen = ({ navigation }) => {
@@ -19,7 +19,7 @@ const WelcomeScreen = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://10.48.73.45:8080/usuario/loginCaseta",
+        "http://192.168.1.11:8080/usuario/loginCaseta",
         {
           userName: email,
           contraseña: password,
@@ -27,7 +27,7 @@ const WelcomeScreen = ({ navigation }) => {
       );
 
       if (response.data.data.isValid) {
-        Alert.alert("Inicio de sesión exitoso", "Bienvenido");
+        await AsyncStorage.setItem("userToken", response.data.data.token);
         navigation.navigate("QRScan");
       } else {
         Alert.alert("Error", response.data.message);

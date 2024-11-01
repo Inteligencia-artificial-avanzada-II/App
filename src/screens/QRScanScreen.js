@@ -10,11 +10,13 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { BarCodeScanner } from "expo-barcode-scanner"; // Importa el escáner de códigos QR
 import { useIsFocused } from "@react-navigation/native"; // Para detectar si la pantalla está enfocada
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const QRScanScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [showScanner, setShowScanner] = useState(false); // Controla si se debe mostrar el escáner
+  const [userToken, setUserToken] = useState("");
 
   const isFocused = useIsFocused(); // Hook para detectar si la pantalla está enfocada
 
@@ -26,6 +28,7 @@ const QRScanScreen = ({ navigation }) => {
     };
 
     getBarCodeScannerPermissions();
+    fetchToken();
   }, []);
 
   // Restablecer el escáner si la pantalla vuelve a estar enfocada
@@ -36,13 +39,41 @@ const QRScanScreen = ({ navigation }) => {
     }
   }, [isFocused]);
 
-  // Función que se llama cuando el código QR es escaneado
-  const handleBarCodeScanned = ({ type, data }) => {
-    setScanned(true);
-    Alert.alert("Código escaneado", `El código escaneado es: ${data}`);
+  const fetchToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      if (token) {
+        setUserToken(token);
+      }
+    } catch (error) {
+      console.log("Error al recuperar el token: ", error);
+    }
+  };
 
-    // Navegar a OrderScreen después del escaneo
-    navigation.navigate("Order");
+  // Función que se llama cuando el código QR es escaneado
+  const handleBarCodeScanned = async ({ type, data }) => {
+    setScanned(true);
+
+    try {
+      const response = await axios.get(
+        `http://10.48.73.45:8080/orden/consultarqr/${data}`,
+        {
+          Headers: {
+            Authorization: `Token ${userToken}`,
+          },
+        }
+      );
+
+      if (response.data && response.data.valid) {
+        Alert.alert("Exito", "El codigo QR es valido");
+        navigation.navigate("Order");
+      } else {
+        Alert.alert("Error", "El codigo QR no es valido");
+      }
+    } catch (error) {
+      console.log("Error en la solicitud", error);
+      Alert.alert("Error", "Hubo un problema con la validación del código QR");
+    }
   };
 
   // Si no se ha concedido el permiso para la cámara
