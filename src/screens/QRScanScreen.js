@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { BarCodeScanner } from "expo-barcode-scanner"; // Importa el escáner de códigos QR
 import { useIsFocused } from "@react-navigation/native"; // Para detectar si la pantalla está enfocada
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const QRScanScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -55,8 +56,9 @@ const QRScanScreen = ({ navigation }) => {
     setScanned(true);
 
     try {
+      console.log("Escaneado: ", data);
       const response = await axios.get(
-        `http://10.48.73.45:8080/orden/consultarqr/${data}`,
+        `http://159.54.147.172:8080/orden/consultarqr/${data}`,
         {
           Headers: {
             Authorization: `Token ${userToken}`,
@@ -64,11 +66,13 @@ const QRScanScreen = ({ navigation }) => {
         }
       );
 
-      if (response.data && response.data.valid) {
-        Alert.alert("Exito", "El codigo QR es valido");
+      console.log("Respuesta: ", response.data);
+
+      if (response.data.data) {
         navigation.navigate("Order");
       } else {
         Alert.alert("Error", "El codigo QR no es valido");
+        navigation.navigate("QRScan");
       }
     } catch (error) {
       console.log("Error en la solicitud", error);

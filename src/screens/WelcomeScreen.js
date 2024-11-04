@@ -19,7 +19,7 @@ const WelcomeScreen = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://192.168.1.11:8080/usuario/loginCaseta",
+        "http://159.54.147.172:8080/usuario/loginCaseta",
         {
           userName: email,
           contraseña: password,
