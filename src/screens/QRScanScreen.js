@@ -32,11 +32,10 @@ const QRScanScreen = ({ navigation }) => {
     fetchToken();
   }, []);
 
-  // Restablecer el escáner si la pantalla vuelve a estar enfocada
   useEffect(() => {
     if (isFocused) {
-      setScanned(false); // Permitir volver a escanear cuando regresa a la pantalla
-      setShowScanner(false); // Reiniciar el escáner y volver a la pantalla principal
+      setScanned(false);
+      setShowScanner(false);
     }
   }, [isFocused]);
 
@@ -60,23 +59,38 @@ const QRScanScreen = ({ navigation }) => {
       const response = await axios.get(
         `http://159.54.147.172:8080/orden/consultarqr/${data}`,
         {
-          Headers: {
+          headers: {
             Authorization: `Token ${userToken}`,
           },
         }
       );
 
       console.log("Respuesta: ", response.data);
+      const products = response.data.data.mongoData.products;
+
+      const sqlData = response.data.data.sqlData;
+      await AsyncStorage.setItem("sqlData", JSON.stringify(sqlData));
+
+      console.log("Array de productos: ", products);
+      await AsyncStorage.setItem("products", JSON.stringify(products));
 
       if (response.data.data) {
         navigation.navigate("Order");
       } else {
-        Alert.alert("Error", "El codigo QR no es valido");
-        navigation.navigate("QRScan");
+        Alert.alert("Error", "El código QR no es válido", [
+          {
+            text: "OK",
+            onPress: () => setScanned(false), // Restablece el estado para permitir un nuevo escaneo
+          },
+        ]);
       }
     } catch (error) {
-      console.log("Error en la solicitud", error);
-      Alert.alert("Error", "Hubo un problema con la validación del código QR");
+      Alert.alert("Error", "Hubo un problema con la validación del código QR", [
+        {
+          text: "OK",
+          onPress: () => setScanned(false), // Restablece el estado para permitir un nuevo escaneo
+        },
+      ]);
     }
   };
 
@@ -91,16 +105,6 @@ const QRScanScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Botón de regreso */}
-      <View style={styles.containerBack}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>{"<"}</Text>
-        </TouchableOpacity>
-      </View>
-
       {/* Contenedor del escaneo de QR */}
       {!showScanner ? (
         <View style={styles.qrContainer}>
@@ -148,27 +152,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  containerBack: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    width: 50,
-    height: 50,
-    borderColor: "#E8ECF4",
-    borderWidth: 1,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: "#1E232C",
-  },
   qrContainer: {
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 50,
-    flex: 1, // Asegurar que el escáner ocupe todo el espacio disponible
+    flex: 1,
     width: "100%",
   },
   qrImage: {

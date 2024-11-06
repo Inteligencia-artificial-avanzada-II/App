@@ -1,14 +1,36 @@
-import React from "react";
+import { React, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const OrderScreen = ({ navigation }) => {
+  const [orderId, setOrderId] = useState("");
+  const [origen, setOrigen] = useState("");
+
+  useEffect(() => {
+    const fetchOrderId = async () => {
+      try {
+        const sqlData = await AsyncStorage.getItem("sqlData");
+        if (sqlData) {
+          const parsedData = JSON.parse(sqlData);
+          setOrderId(parsedData.idOrden);
+          setOrigen(parsedData.origen);
+        } else {
+          console.error("No se encontro sqlData en AsyncStorage");
+        }
+      } catch (error) {
+        console.error("Error al obtener el idOrden: ", error);
+      }
+    };
+    fetchOrderId();
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* Contenedor para el título y el número de orden */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Orden</Text>
-        <Text style={styles.orderNumber}>#743687456</Text>
+        <Text style={styles.orderNumber}># {orderId}</Text>
       </View>
 
       <View style={styles.itemContainer}>
@@ -23,10 +45,13 @@ const OrderScreen = ({ navigation }) => {
             />
             {/* Icono de documento */}
           </View>
-          <Text style={styles.itemText}>Origen</Text>
+          <Text style={styles.itemText}>{origen}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item}>
+        <TouchableOpacity
+          style={styles.item}
+          onPress={() => navigation.navigate("Products")}
+        >
           <View style={styles.iconContainer}>
             <Ionicons
               name="basket"
