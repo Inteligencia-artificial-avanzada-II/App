@@ -1,5 +1,5 @@
 // src/screens/WelcomeScreen.js
-import { React, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -11,8 +11,8 @@ import {
 } from "react-native";
 import globalStyles from "../globalStyles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
+import { loginCaseta } from "../services/AuthService";
 
 const WelcomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -23,22 +23,14 @@ const WelcomeScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        "http://159.54.147.172:8080/usuario/loginCaseta",
-        {
-          userName: email,
-          contraseña: password,
-        }
-      );
-
-      if (response.data.data.isValid) {
-        await AsyncStorage.setItem("userToken", response.data.data.token);
+      const data = await loginCaseta(email, password);
+      if (data.data.isValid) {
+        await AsyncStorage.setItem("userToken", data.data.token);
         navigation.navigate("QRScan");
       } else {
-        Alert.alert("Error", response.data.message);
+        Alert.alert("Error", data.message);
       }
     } catch (error) {
-      console.log("Error de la solicitud: ", error);
       Alert.alert(
         "Error",
         "Las credenciales ingresadas son incorrectas o hubo un problema con el servidor."
